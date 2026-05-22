@@ -1,0 +1,203 @@
+[
+  {
+    "email": "aditi@gmail.com",
+    "disease": "Heart Disease",
+    "date": "16-05-2026 16:24",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Heart Disease",
+        "model": "Logistic Regression",
+        "probability": "100.00%",
+        "result": "Positive"
+      }
+    ],
+    "user_details": {
+      "age": "54",
+      "gender": "Male",
+      "height": "765",
+      "weight": "782",
+      "systolic_bp": "786",
+      "diastolic_bp": "6",
+      "cholesterol": "Normal",
+      "glucose": "Normal",
+      "smoking": "No",
+      "alcohol": "Yes",
+      "physical_activity": "Yes"
+    }
+  },
+  {
+    "email": "sanam@gmail.com",
+    "disease": "Heart Disease",
+    "date": "23-05-2026 00:09",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Heart Disease",
+        "model": "Random Forest",
+        "probability": "45.00%",
+        "result": "Negative"
+      }
+    ],
+    "user_details": {
+      "age": "23",
+      "gender": "Male",
+      "height": "24",
+      "weight": "4365",
+      "systolic_bp": "234",
+      "diastolic_bp": "42",
+      "cholesterol": "Normal",
+      "glucose": "Above Normal",
+      "smoking": "No",
+      "alcohol": "Yes",
+      "physical_activity": "Yes"
+    }
+  },
+  {
+    "email": "sanam@gmail.com",
+    "disease": "Heart Disease",
+    "date": "23-05-2026 00:10",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Heart Disease",
+        "model": "Decision Tree",
+        "probability": "80.90%",
+        "result": "Positive"
+      }
+    ],
+    "user_details": {
+      "age": "76",
+      "gender": "Female",
+      "height": "133",
+      "weight": "68",
+      "systolic_bp": "134",
+      "diastolic_bp": "23",
+      "cholesterol": "Well Above Normal",
+      "glucose": "Above Normal",
+      "smoking": "Yes",
+      "alcohol": "Yes",
+      "physical_activity": "Yes"
+    }
+  },
+  {
+    "email": "sanam@gmail.com",
+    "disease": "Heart Disease",
+    "date": "23-05-2026 00:12",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Heart Disease",
+        "model": "Decision Tree",
+        "probability": "80.90%",
+        "result": "Positive"
+      }
+    ],
+    "user_details": {
+      "age": "76",
+      "gender": "Female",
+      "height": "133",
+      "weight": "68",
+      "systolic_bp": "134",
+      "diastolic_bp": "23",
+      "cholesterol": "Well Above Normal",
+      "glucose": "Above Normal",
+      "smoking": "Yes",
+      "alcohol": "Yes",
+      "physical_activity": "Yes"
+    }
+  },
+  {
+    "email": "sanam@gmail.com",
+    "disease": "Heart Disease",
+    "date": "23-05-2026 00:12",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Heart Disease",
+        "model": "Decision Tree",
+        "probability": "80.90%",
+        "result": "Positive"
+      }
+    ],
+    "user_details": {
+      "age": "76",
+      "gender": "Female",
+      "height": "133",
+      "weight": "68",
+      "systolic_bp": "134",
+      "diastolic_bp": "23",
+      "cholesterol": "Well Above Normal",
+      "glucose": "Above Normal",
+      "smoking": "Yes",
+      "alcohol": "Yes",
+      "physical_activity": "Yes"
+    }
+  },
+  {
+    "email": "sanam@gmail.com",
+    "disease": "Liver Disease",
+    "date": "23-05-2026 00:15",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Liver Disease",
+        "model": "Svm",
+        "probability": "87.42%",
+        "result": "Positive"
+      }
+    ],
+    "user_details": {
+      "age": "54",
+      "gender": "Female",
+      "total_bilirubin": "0.8",
+      "direct_bilirubin": "0.5",
+      "alkaline_phosphotase": "100",
+      "alamine_aminotransferase": "56",
+      "aspartate_aminotransferase": "55",
+      "total_proteins": "76.0",
+      "albumin": "6.8",
+      "albumin_globulin_ratio": "1.66"
+    }
+  },
+  {
+    "email": "sanam@gmail.com",
+    "disease": "Kidney Disease",
+    "date": "23-05-2026 00:41",
+    "results": [
+      {
+        "sr_no": 1,
+        "disease": "Kidney Disease",
+        "model": "Logistic Regression",
+        "probability": "100.00%",
+        "result": "Positive"
+      }
+    ],
+    "user_details": {
+      "age": "66",
+      "blood_pressure": "64.6",
+      "specific_gravity": "1.8",
+      "albumin": "2",
+      "sugar": "3",
+      "red_blood_cells": "1",
+      "pus_cell": "1",
+      "pus_cell_clumps": "1",
+      "bacteria": "1",
+      "blood_glucose_random": "768.0",
+      "blood_urea": "54.0",
+      "serum_creatinine": "64.5",
+      "sodium": "534.0",
+      "potassium": "76.0",
+      "hemoglobin": "12.0",
+      "packed_cell_volume": "40",
+      "white_blood_cell_count": "7667.0",
+      "red_blood_cell_count": "6.65",
+      "hypertension": "1",
+      "diabetes_mellitus": "0",
+      "coronary_artery_disease": "1",
+      "appetite": "1",
+      "pedal_edema": "1",
+      "anemia": "0"
+    }
+  }
+]

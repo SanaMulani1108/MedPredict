@@ -1,0 +1,17 @@
+{
+  "sanamulani1108@gmail.com": {
+    "name": "Sana",
+    "phone": "8483011076",
+    "password": "pbkdf2:sha256:1000000$dgx0jiwustjHL0dX$631b579fce2d3222ee093ad71ed34d47d4ec087708c6bbe06d657a6f7847a2b9"
+  },
+  "aditi@gmail.com": {
+    "name": "aditi",
+    "phone": "9175424414",
+    "password": "pbkdf2:sha256:1000000$2CJcb2eHGr13VOzX$2e8553b24ad856a118c0ff3ee727837d1e75db3c9871aea77b7c3a57ce54dc2a"
+  },
+  "sanam@gmail.com": {
+    "name": "Sana Husen Mulani",
+    "phone": "8476543322",
+    "password": "pbkdf2:sha256:1000000$C2sJvuKUhDstVUkC$22e2bb99eec5f6c154e17b99a6ae32e9037892994e93a4b63cf805328eb78138"
+  }
+}
