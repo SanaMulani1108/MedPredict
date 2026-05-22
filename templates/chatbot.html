@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* ── Full-screen layout ── */
+.fs-chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 68px); /* 68px = navbar height from base.css --navbar-h */
+    background: #f8fafc;
+    /* no position:fixed — sits naturally below sticky navbar */
+}
+
+/* strip the container padding/margin that base.html adds via <main class="container py-4"> */
+main.container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Header */
+.fs-head {
+    background: linear-gradient(120deg, #0d1b3e 0%, #1a3a8a 55%, #1a6ef5 100%);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(26,110,245,0.18);
+}
+.fs-av {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.fs-head-info { flex: 1; }
+.fs-head-title {
+    font-family:'Sora',sans-serif; font-weight:700;
+    color:#fff; font-size:1rem;
+}
+.fs-head-sub {
+    font-size:.72rem; color:rgba(255,255,255,.75);
+    display:flex; align-items:center; gap:5px; margin-top:2px;
+}
+.fs-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; animation:fsPulse 2s infinite; }
+@keyframes fsPulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+.fs-head-actions { display:flex; gap:8px; align-items:center; }
+.fs-icon-btn {
+    height:34px; border-radius:9px; border:none;
+    background:rgba(255,255,255,0.12); color:#fff;
+    font-size:.82rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding: 0 12px;
+    transition:background .15s; white-space:nowrap;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    text-decoration: none;
+}
+.fs-icon-btn:hover { background:rgba(255,255,255,0.22); color:#fff; }
+
+/* Messages */
+.fs-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px clamp(16px, 5vw, 80px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+}
+.fs-messages::-webkit-scrollbar { width: 4px; }
+.fs-messages::-webkit-scrollbar-thumb { background:#c7d2e4; border-radius:4px; }
+
+/* ── Bubble row ── */
+.fcm { display:flex; gap:9px; align-items:flex-end; }
+.fcm.user { flex-direction:row-reverse; margin-left:auto; max-width: min(78%, 620px); }
+.fcm.ai   { margin-right:auto;          max-width: min(78%, 620px); }
+
+/* ── Bubble ── */
+.fcb {
+    padding: 11px 16px;
+    border-radius: 18px;
+    font-size: .9rem;
+    line-height: 1.65;
+    word-break: break-word;
+}
+.fcb.ai   { background:#f1f5fd; color:#1a2236; border-bottom-left-radius:4px; }
+.fcb.user { background:#1a6ef5; color:#fff;    border-bottom-right-radius:4px; }
+.fcb.err  { background:#fef2f2; border:1px solid #fca5a5; color:#dc2626; }
+.fcb ul   { padding-left:16px; margin:6px 0 0; }
+.fcb li   { margin-bottom:3px; }
+.fcb strong { font-weight:700; }
+
+/* ── Avatar ── */
+.fcm-av {
+    width:32px; height:32px; border-radius:9px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:.8rem;
+}
+.fcm-av.ai   { background:#eff6ff; border:1px solid #dbeafe; }
+.fcm-av.user { background:#1a6ef5; color:#fff; font-size:.65rem; font-weight:700; }
+
+/* ── Timestamp ── */
+.fcm-time { font-size:.62rem; color:#6b7a99; margin-top:3px; }
+.fcm.user .fcm-time { text-align:right; }
+
+/* ── Typing indicator ── */
+.fs-typing { display:none; align-items:flex-end; gap:9px; }
+.fs-typing.show { display:flex; }
+.fc-typing-dots {
+    background:#f1f5fd; border-radius:16px; border-bottom-left-radius:3px;
+    padding:10px 14px; display:flex; gap:4px; align-items:center;
+}
+.ftd { width:6px; height:6px; border-radius:50%; background:#94a3b8; animation:ftBounce 1.4s infinite ease-in-out; }
+.ftd:nth-child(2){animation-delay:.2s;} .ftd:nth-child(3){animation-delay:.4s;}
+@keyframes ftBounce{ 0%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-6px);} }
+
+/* ── Quick chips ── */
+.fs-chips {
+    padding: 10px 20px 0;
+    display:flex; gap:8px; flex-wrap:wrap; flex-shrink:0;
+}
+.fc-chip {
+    background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8;
+    border-radius:20px; padding:5px 12px; font-size:.75rem; font-weight:600;
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+    font-family:'Plus Jakarta Sans',sans-serif;
+}
+.fc-chip:hover { background:#dbeafe; border-color:#93c5fd; }
+
+/* Input row */
+.fs-input-row {
+    padding: 14px 20px;
+    border-top: 1px solid #e4ecf7;
+    background: #fff;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+.fs-input-row textarea {
+    flex:1; resize:none; border:1px solid #e4ecf7; border-radius:13px;
+    padding:10px 15px; font-size:.88rem; color:#1a2236;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    max-height:120px; overflow-y:auto; outline:none;
+    transition:border-color .2s;
+}
+.fs-input-row textarea:focus { border-color:#1a6ef5; }
+.fs-input-row textarea::placeholder { color:#6b7a99; }
+.fs-send {
+    width:42px; height:42px; background:#1a6ef5; border:none;
+    border-radius:12px; color:#fff; font-size:1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .2s; flex-shrink:0;
+}
+.fs-send:hover    { background:#1557d4; transform:scale(1.05); }
+.fs-send:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+/* Disclaimer */
+.fs-disclaimer {
+    padding: 8px 20px;
+    font-size:.68rem; color:#92400e;
+    background:#fffbeb; border-top:1px solid #fde68a;
+    flex-shrink:0;
+}
+</style>
+
+<div class="fs-chat-wrap">
+
+    <!-- Header -->
+    <div class="fs-head">
+        <div class="fs-av">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 16 16">
+                <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+            </svg>
+        </div>
+        <div class="fs-head-info">
+            <div class="fs-head-title">MedPredict AI Assistant</div>
+            <div class="fs-head-sub"><span class="fs-dot"></span> Online · Health Assistant</div>
+        </div>
+        <div class="fs-head-actions">
+            <button class="fs-icon-btn" onclick="fsClearChat()" title="Clear Chat">
+                <i class="bi bi-trash3"></i> Clear
+            </button>
+            <a href="javascript:history.back()" class="fs-icon-btn" title="Go Back">
+                <i class="bi bi-fullscreen-exit"></i> Exit Full Screen
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="fs-messages" id="fsMessages">
+
+        <!-- Welcome bubble -->
+        <div class="fcm ai" id="fsWelcome">
+            <div class="fcm-av ai">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#1a6ef5" viewBox="0 0 16 16">
+                    <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+                </svg>
+            </div>
+            <div>
+                <div class="fcb ai">
+                    Hi <strong>{{ session.get('user_name', 'there') }}</strong> 👋 I'm your AI Health Assistant.
+                    Ask me about your results, diet tips, or symptoms!
+                </div>
+                <div class="fcm-time" id="fsWelcomeTime"></div>
+            </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="fs-typing" id="fsTyping">
+            <div class="fcm-av ai">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#1a6ef5" viewBox="0 0 16 16">
+                    <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+                </svg>
+            </div>
+            <div class="fc-typing-dots">
+                <div class="ftd"></div><div class="ftd"></div><div class="ftd"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick chips -->
+    <div class="fs-chips" id="fsChips">
+        <button class="fc-chip" onclick="fsQuick('Summarize my health predictions')">Summarize results</button>
+        <button class="fc-chip" onclick="fsQuick('Give me diet tips based on my results')">Diet tips</button>
+        <button class="fc-chip" onclick="fsQuick('What symptoms should I watch for?')">Symptoms</button>
+    </div>
+
+    <!-- Input -->
+    <div class="fs-input-row">
+        <textarea id="fsInput" rows="1" placeholder="Ask about your health…"
+            onkeydown="fsHandleKey(event)" oninput="fsAutoResize(this)"></textarea>
+        <button class="fs-send" id="fsSend" onclick="fsSendMsg()" title="Send">
+            <i class="bi bi-send-fill"></i>
+        </button>
+    </div>
+
+    <div class="fs-disclaimer">
+        ⚠️ For informational purposes only. Always consult a qualified medical professional.
+    </div>
+</div>
+
+<script>
+(function () {
+    const USER_INITIAL = ('{{ session.get("user_name","U") }}'[0] || 'U').toUpperCase();
+
+    /* Shared localStorage key — same as floating widget */
+    const STORAGE_KEY = "medpredict_chat";
+
+    let fsHistory = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+    /* ── Helpers ── */
+    function fsNow() {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    document.getElementById('fsWelcomeTime').textContent = fsNow();
+
+    function fsScrollBottom() {
+        const el = document.getElementById('fsMessages');
+        el.scrollTop = el.scrollHeight;
+    }
+
+    window.fsAutoResize = function (el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    };
+
+    window.fsHandleKey = function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fsSendMsg(); }
+    };
+
+    /* Minimal markdown → HTML (same logic as widget) */
+    function fsMd(raw) {
+        let t = raw
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g,'<em>$1</em>')
+            .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>');
+        const lines = t.split('\n'), out = []; let inList = false;
+        for (const line of lines) {
+            const li = line.match(/^[-•*] (.+)/);
+            const ni = line.match(/^\d+\. (.+)/);
+            if (li || ni) {
+                if (!inList) { out.push('<ul>'); inList = true; }
+                out.push('<li>' + (li ? li[1] : ni[1]) + '</li>');
+            } else {
+                if (inList) { out.push('</ul>'); inList = false; }
+                out.push(line);
+            }
+        }
+        if (inList) out.push('</ul>');
+        return out.join('\n').replace(/\n\n/g,'<br><br>').replace(/(?<!>)\n(?!<)/g,'<br>');
+    }
+
+    function fsAppend(role, html, isErr) {
+        const container = document.getElementById('fsMessages');
+        const typing    = document.getElementById('fsTyping');
+
+        const wrap = document.createElement('div');
+        wrap.className = 'fcm ' + role;
+
+        const av = document.createElement('div');
+        av.className = 'fcm-av ' + role;
+        if (role === 'ai') {
+            av.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#1a6ef5" viewBox="0 0 16 16"><path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/></svg>`;
+        } else {
+            av.textContent = USER_INITIAL;
+        }
+
+        const body   = document.createElement('div');
+        const bubble = document.createElement('div');
+        bubble.className = 'fcb ' + role + (isErr ? ' err' : '');
+        bubble.innerHTML = html;
+
+        const t = document.createElement('div');
+        t.className = 'fcm-time';
+        t.textContent = fsNow();
+
+        body.appendChild(bubble);
+        body.appendChild(t);
+        wrap.appendChild(av);
+        wrap.appendChild(body);
+        container.insertBefore(wrap, typing);
+        fsScrollBottom();
+    }
+
+    /* ── Load history from localStorage on page open ── */
+    function fsLoadHistory() {
+        if (fsHistory.length === 0) return;
+        document.getElementById('fsChips').style.display = 'none';
+        fsHistory.forEach(msg => {
+            if (msg.role === 'user')  fsAppend('user', fsMd(msg.text));
+            if (msg.role === 'model') fsAppend('ai',   fsMd(msg.text));
+        });
+        fsScrollBottom();
+    }
+
+    fsLoadHistory();
+
+    /* ── Send ── */
+    window.fsSendMsg = async function () {
+        const inp  = document.getElementById('fsInput');
+        const text = inp.value.trim();
+        if (!text) return;
+
+        document.getElementById('fsChips').style.display = 'none';
+        inp.value = ''; inp.style.height = 'auto';
+        document.getElementById('fsSend').disabled = true;
+
+        fsAppend('user', fsMd(text));
+        fsHistory.push({ role: 'user', text });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(fsHistory));
+
+        document.getElementById('fsTyping').classList.add('show');
+        fsScrollBottom();
+
+        try {
+            const res  = await fetch('/chatbot/ask', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ message: text, history: fsHistory.slice(0, -1) })
+            });
+            const data = await res.json();
+            document.getElementById('fsTyping').classList.remove('show');
+
+            if (!res.ok || data.error) {
+                fsAppend('ai', data.error || 'Server error ' + res.status, true);
+                fsHistory.pop();
+            } else {
+                fsHistory.push({ role: 'model', text: data.reply });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(fsHistory));
+                fsAppend('ai', fsMd(data.reply));
+            }
+        } catch (err) {
+            document.getElementById('fsTyping').classList.remove('show');
+            fsAppend('ai', 'Could not reach server. Please try again.', true);
+            fsHistory.pop();
+        }
+
+        document.getElementById('fsSend').disabled = false;
+        document.getElementById('fsInput').focus();
+    };
+
+    window.fsQuick = function (text) {
+        document.getElementById('fsInput').value = text;
+        fsSendMsg();
+    };
+
+    window.fsClearChat = function () {
+        if (!confirm('Clear conversation?')) return;
+        fsHistory = [];
+        localStorage.removeItem(STORAGE_KEY);
+        const msgs    = document.getElementById('fsMessages');
+        const welcome = document.getElementById('fsWelcome');
+        const typing  = document.getElementById('fsTyping');
+        Array.from(msgs.children).forEach(c => {
+            if (c !== welcome && c !== typing) msgs.removeChild(c);
+        });
+        document.getElementById('fsChips').style.display = 'flex';
+        fsAppend('ai', 'Cleared! How can I help you? 😊');
+    };
+
+    /* Focus input on load */
+    document.getElementById('fsInput').focus();
+
+
+})();
+</script>
+
+{% endblock %}

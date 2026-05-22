@@ -1,0 +1,332 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+  #map { height: 480px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .hospital-card { border-radius: 10px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 12px; border-left: 4px solid #1a73e8; }
+  .search-bar { border-radius: 10px; padding: 18px 20px; background: linear-gradient(135deg,#1a73e8,#0d47a1); color: white; margin-bottom: 24px; }
+  .specialist-btn { border-radius: 20px; margin: 3px; font-size: 0.85rem; }
+  #status { font-size: 0.9rem; }
+
+  /* Custom purple — Bootstrap has no btn-outline-purple */
+  .btn-outline-purple {
+    color: #7c3aed;
+    border: 1px solid #7c3aed;
+    background: transparent;
+  }
+  .btn-outline-purple:hover {
+    color: #fff !important;
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+  }
+  .btn-outline-purple.active {
+    color: #fff !important;
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+  }
+
+  /* ── Action group ── */
+  .action-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* "Use My Location" button */
+  #locateBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111111;
+    border: none;
+    font-weight: 700;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: background 0.15s;
+    outline: none;
+  }
+  #locateBtn:hover:not(:disabled) { background: #f0f4ff; }
+  #locateBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+  #locateBtn:focus { outline: none; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+  /* Pincode wrapper — no visible border, clean white bg with subtle shadow */
+  .pincode-group {
+    display: inline-flex;
+    align-items: stretch;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    border: none;
+  }
+
+  /* Pincode text input */
+  #pincodeInput {
+    width: 120px;
+    height: 100%;
+    border: none;
+    outline: none;
+    padding: 0 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #111;
+    background: #ffffff;
+    letter-spacing: 1px;
+    box-shadow: none;
+  }
+  #pincodeInput:focus { outline: none; box-shadow: none; }
+  #pincodeInput::placeholder { font-weight: 400; color: #bbb; letter-spacing: 0; }
+
+  /* Thin divider line */
+  .pincode-divider { width: 1px; background: #e0e4ea; flex-shrink: 0; margin: 6px 0; }
+
+  /* Amber Search button */
+  #searchBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 16px;
+    border: none;
+    background: #f97316;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    outline: none;
+    border-radius: 0 6px 6px 0;
+  }
+  #searchBtn:hover { background: #ea6a0a; }
+  #searchBtn:active { background: #dc5d00; }
+  #searchBtn:focus { outline: none; }
+</style>
+
+<div class="search-bar d-flex align-items-center justify-content-between flex-wrap gap-3">
+  <div>
+    <h3 class="mb-1">Nearby Hospitals</h3>
+    <p class="mb-0 opacity-75">Find hospitals and clinics near your current location or by pincode</p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-group">
+    <button id="locateBtn" onclick="locateMe()">📍 Use My Location</button>
+
+    <div class="pincode-group">
+      <input
+        type="text"
+        id="pincodeInput"
+        placeholder="Enter Pincode"
+        maxlength="6"
+        inputmode="numeric"
+        onkeydown="if(event.key==='Enter') searchByPincode()"
+      >
+      <div class="pincode-divider"></div>
+      <button id="searchBtn" onclick="searchByPincode()">Search</button>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3">
+  <span class="fw-bold me-2">Filter by specialist:</span>
+  <button class="btn btn-outline-primary specialist-btn active" onclick="filterType('hospital', this)">All Hospitals</button>
+  <button class="btn btn-outline-danger specialist-btn" onclick="filterType('cardiologist', this)">Cardiologist</button>
+  <button class="btn btn-outline-warning specialist-btn" onclick="filterType('nephrologist', this)">Nephrologist</button>
+  <button class="btn btn-outline-success specialist-btn" onclick="filterType('diabetologist', this)">Diabetologist</button>
+  <button class="btn btn-outline-purple specialist-btn" onclick="filterType('gastroenterologist', this)"> Gastroenterologist</button>
+</div>
+
+<div id="status" class="text-muted mb-3">
+  Click "Use My Location" or enter a pincode to find hospitals near you.
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div id="map"></div>
+  </div>
+  <div class="col-lg-5">
+    <h6 class="fw-bold mb-3">Hospital List <span id="count" class="text-muted fw-normal"></span></h6>
+    <div id="hospitalList" style="max-height:460px; overflow-y:auto;">
+      <div class="text-muted text-center py-4">
+        <div style="font-size:2.5rem;">📍</div>
+        <p>Enable location or enter a pincode to see nearby hospitals</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  let map, userMarker, currentType = 'hospital';
+  let hospitalMarkers = [];
+
+  map = L.map('map').setView([20.5937, 78.9629], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // ─── Use My Location ───────────────────────────────────────────
+  window.locateMe = function () {
+    document.getElementById('status').textContent = '📡 Getting your location...';
+    document.getElementById('locateBtn').disabled = true;
+    if (!navigator.geolocation) {
+      document.getElementById('status').textContent = '❌ Geolocation not supported.';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        placeUserMarker(pos.coords.latitude, pos.coords.longitude, '📍 You are here');
+        fetchHospitals(pos.coords.latitude, pos.coords.longitude, currentType);
+        document.getElementById('locateBtn').disabled = false;
+      },
+      () => {
+        document.getElementById('status').textContent = '❌ Location access denied.';
+        document.getElementById('locateBtn').disabled = false;
+      },
+      { enableHighAccuracy: true }
+    );
+  };
+
+  // ─── Search by Pincode ─────────────────────────────────────────
+  window.searchByPincode = function () {
+    const pincode = document.getElementById('pincodeInput').value.trim();
+    if (!/^\d{6}$/.test(pincode)) {
+      document.getElementById('status').textContent = '⚠️ Please enter a valid 6-digit Indian pincode.';
+      return;
+    }
+    document.getElementById('status').textContent = `🔍 Looking up pincode ${pincode}...`;
+    fetch(`https://nominatim.openstreetmap.org/search?postalcode=${pincode}&country=India&format=json&limit=1`,
+      { headers: { 'Accept-Language': 'en', 'User-Agent': 'HospitalFinderApp/1.0' } }
+    )
+    .then(r => r.json())
+    .then(results => {
+      if (!results || results.length === 0) {
+        document.getElementById('status').textContent = `❌ Pincode ${pincode} not found. Please try another.`;
+        return;
+      }
+      const lat = parseFloat(results[0].lat);
+      const lng = parseFloat(results[0].lon);
+      const label = (results[0].display_name || `Pincode ${pincode}`).split(',').slice(0,2).join(',');
+      placeUserMarker(lat, lng, `📮 ${pincode} — ${label}`);
+      fetchHospitals(lat, lng, currentType);
+    })
+    .catch(() => {
+      document.getElementById('status').textContent = '❌ Could not geocode pincode. Check your connection.';
+    });
+  };
+
+  // ─── Place / Move user marker ──────────────────────────────────
+  function placeUserMarker(lat, lng, popupText) {
+    map.setView([lat, lng], 14);
+    if (userMarker) map.removeLayer(userMarker);
+    userMarker = L.marker([lat, lng], {
+      icon: L.divIcon({ html: '📍', className: '', iconSize: [30, 30] })
+    }).addTo(map).bindPopup(popupText).openPopup();
+  }
+
+  // ─── Filter by Specialist ──────────────────────────────────────
+  window.filterType = function (type, btn) {
+    currentType = type;
+    document.querySelectorAll('.specialist-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (userMarker) {
+      const pos = userMarker.getLatLng();
+      fetchHospitals(pos.lat, pos.lng, type);
+    }
+  };
+
+  // ─── Fetch via Overpass ────────────────────────────────────────
+  function fetchHospitals(lat, lng, type) {
+    document.getElementById('status').textContent = '🔍 Searching nearby...';
+    document.getElementById('hospitalList').innerHTML =
+      '<div class="text-center py-3"><div class="spinner-border text-primary"></div><p class="mt-2">Finding hospitals...</p></div>';
+    hospitalMarkers.forEach(m => map.removeLayer(m));
+    hospitalMarkers = [];
+
+    const radius = 5000;
+    const query = type === 'hospital'
+      ? `[out:json][timeout:25];(node["amenity"="hospital"](around:${radius},${lat},${lng});node["amenity"="clinic"](around:${radius},${lat},${lng}););out body;`
+      : `[out:json][timeout:25];(node["amenity"="hospital"](around:${radius},${lat},${lng});node["healthcare:speciality"="${type}"](around:${radius},${lat},${lng}););out body;`;
+
+    const opts = { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'data=' + encodeURIComponent(query) };
+
+    fetch('https://overpass-api.de/api/interpreter', opts)
+      .then(r => r.json())
+      .then(data => processFetchedHospitals(data, lat, lng))
+      .catch(() =>
+        fetch('https://overpass.kumi.systems/api/interpreter', opts)
+          .then(r => r.json())
+          .then(data => processFetchedHospitals(data, lat, lng))
+          .catch(() => {
+            document.getElementById('status').textContent = '❌ Could not fetch hospitals.';
+            document.getElementById('hospitalList').innerHTML = '<div class="text-danger text-center py-3">Failed to load hospitals.</div>';
+          })
+      );
+  }
+
+  // ─── Render Results ────────────────────────────────────────────
+  function processFetchedHospitals(data, lat, lng) {
+    const elements = data.elements || [];
+    document.getElementById('count').textContent = `(${elements.length} found)`;
+
+    if (elements.length === 0) {
+      document.getElementById('status').textContent = '⚠️ No hospitals found within 5km.';
+      document.getElementById('hospitalList').innerHTML = '<div class="text-muted text-center py-4"><p>No results found nearby.</p></div>';
+      return;
+    }
+
+    document.getElementById('status').textContent = `✅ Found ${elements.length} hospitals within 5km`;
+    let listHTML = '';
+
+    elements.slice(0, 20).forEach((el, i) => {
+      const name       = el.tags?.name || 'Unnamed Hospital';
+      const type_label = el.tags?.amenity === 'clinic' ? 'Clinic' : 'Hospital';
+      const phone      = el.tags?.phone || el.tags?.['contact:phone'] || '';
+      const addr       = el.tags?.['addr:street']
+        ? el.tags['addr:street'] + (el.tags['addr:city'] ? ', ' + el.tags['addr:city'] : '') : '';
+
+      hospitalMarkers.push(
+        L.marker([el.lat, el.lon]).addTo(map)
+          .bindPopup(`<b>${name}</b><br>${type_label}${addr ? '<br>'+addr : ''}${phone ? '<br>📞 '+phone : ''}`)
+      );
+
+      listHTML += `
+        <div class="card hospital-card" onclick="map.setView([${el.lat},${el.lon}],17); hospitalMarkers[${i}].openPopup();" style="cursor:pointer;">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-bold">${name}</div>
+                <small class="text-muted">${type_label}${addr ? ' · ' + addr : ''}</small>
+                ${phone ? `<br><small>📞 ${phone}</small>` : ''}
+              </div>
+              <span class="badge bg-primary ms-2">${getDistance(lat, lng, el.lat, el.lon)} km</span>
+            </div>
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('hospitalList').innerHTML = listHTML;
+  }
+
+  // ─── Haversine Distance ────────────────────────────────────────
+  function getDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lng2-lng1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+  }
+
+});
+</script>
+
+{% endblock %}

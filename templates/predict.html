@@ -1,0 +1,407 @@
+{% extends 'base.html' %}{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/predict.css') }}">
+
+<!-- Tom Select CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/css/tom-select.bootstrap5.min.css">
+
+<div class="predict-header">
+  <h1><i class="bi bi-activity me-2"></i>Disease Prediction</h1>
+  <p>Select a disease tab, fill in your health parameters, and get an instant AI-powered prediction.</p>
+</div>
+
+<!-- Disease Tabs -->
+<ul class="nav" id="diseaseTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" data-bs-toggle="tab" href="#heart" role="tab">Heart Disease</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#diabetes" role="tab">Diabetes</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#kidney" role="tab">Kidney Disease</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#liver" role="tab">Liver Disease</a>
+  </li>
+</ul>
+
+<div class="tab-content" id="diseaseTabContent">
+
+  <!-- HEART -->
+  <div class="tab-pane fade show active" id="heart" role="tabpanel">
+    <div class="form-card">
+      <div class="form-section-title"><i class="bi bi-heart-pulse"></i> Heart Disease Parameters</div>
+      <form method="POST" action="/predict/heart">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="form-group">
+            <label>Age (years)</label>
+            <input type="number" class="form-control" name="age" placeholder="e.g. 35" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Gender</label>
+            <select class="form-control" name="gender" required><option value="" disabled selected>Select Gender</option><option value="1">Male</option><option value="2">Female</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Height (cm)</label>
+            <input type="number" class="form-control" name="height" placeholder="e.g. 170" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" class="form-control" name="weight" placeholder="e.g. 70" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Systolic Blood Pressure (mmHg) <span class='range-hint'>Normal: 90–120</span></label>
+            <input type="number" class="form-control" name="systolic_bp" placeholder="e.g. 120" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Diastolic Blood Pressure (mmHg) <span class='range-hint'>Normal: 60–80</span></label>
+            <input type="number" class="form-control" name="diastolic_bp" placeholder="e.g. 80" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Cholesterol Level</label>
+            <select class="form-control" name="cholesterol" required><option value="" disabled selected>Select Level</option><option value="1">Normal</option><option value="2">Above Normal</option><option value="3">Well Above Normal</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Glucose Level</label>
+            <select class="form-control" name="glucose" required><option value="" disabled selected>Select Level</option><option value="1">Normal</option><option value="2">Above Normal</option><option value="3">Well Above Normal</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Smoking</label>
+            <select class="form-control" name="smoking" required><option value="" disabled selected>Select</option><option value="1">Yes</option><option value="0">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Alcohol Consumption</label>
+            <select class="form-control" name="alcohol" required><option value="" disabled selected>Select</option><option value="1">Yes</option><option value="0">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Physical Activity</label>
+            <select class="form-control" name="physical_activity" required><option value="" disabled selected>Select</option><option value="1">Yes</option><option value="0">No</option></select>
+          </div></div>
+        </div>
+
+        <div class="algo-section mt-4">
+          <h6><i class="bi bi-cpu me-2"></i>Select Prediction Algorithms</h6>
+          <small class="algo-select-label">
+            Search and select one or more algorithms
+          </small>
+          <select id="algo-heart" name="algorithms" multiple placeholder="Search algorithms...">
+            <option value="logistic_regression">Logistic Regression</option>
+            <option value="decision_tree">Decision Tree</option>
+            <option value="random_forest">Random Forest</option>
+            <option value="knn">KNN</option>
+            <option value="svm">SVM</option>
+            <option value="gradient_boosting">Gradient Boosting</option>
+            <option value="adaboost">AdaBoost</option>
+            <option value="stacked" selected>⭐ Stacked Model</option>
+          </select>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-predict"><i class="bi bi-search-heart"></i>Get Prediction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DIABETES -->
+  <div class="tab-pane fade" id="diabetes" role="tabpanel">
+    <div class="form-card">
+      <div class="form-section-title"><i class="bi bi-droplet-half"></i> Diabetes Parameters</div>
+      <form method="POST" action="/predict/diabetes">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="form-group">
+            <label>Gender</label>
+            <select class="form-control" name="gender" required><option value="" disabled selected>Select Gender</option><option value="Male">Male</option><option value="Female">Female</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Age (years)</label>
+            <input type="number" class="form-control" name="age" placeholder="e.g. 35" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Hypertension</label>
+            <select class="form-control" name="hypertension" required><option value="" disabled selected>Select</option><option value="1">Yes</option><option value="0">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Heart Disease</label>
+            <select class="form-control" name="heart_disease" required><option value="" disabled selected>Select</option><option value="1">Yes</option><option value="0">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Smoking History</label>
+            <select class="form-control" name="smoking_history" required><option value="" disabled selected>Select</option><option value="never">Never</option><option value="former">Former</option><option value="current">Current</option><option value="not current">Not Current</option><option value="No Info">No Info</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>BMI <span class='range-hint'>Normal: 18.5–24.9</span></label>
+            <input type="number" step="0.1" class="form-control" name="bmi" placeholder="e.g. 22.5" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Hemoglobin A1c Level <span class='range-hint'>Normal: &lt;5.7%</span></label>
+            <input type="number" step="0.1" class="form-control" name="hemoglobin_a1c" placeholder="e.g. 5.5" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Blood Glucose Level (mg/dL) <span class='range-hint'>Normal: 70–99</span></label>
+            <input type="number" class="form-control" name="blood_glucose" placeholder="e.g. 90" required>
+          </div></div>
+        </div>
+
+        <div class="algo-section mt-4">
+          <h6><i class="bi bi-cpu me-2"></i>Select Prediction Algorithms</h6>
+          <small class="algo-select-label">
+            Search and select one or more algorithms
+          </small>
+          <select id="algo-diabetes" name="algorithms" multiple placeholder="Search algorithms...">
+            <option value="logistic_regression">Logistic Regression</option>
+            <option value="decision_tree">Decision Tree</option>
+            <option value="random_forest">Random Forest</option>
+            <option value="knn">KNN</option>
+            <option value="svm">SVM</option>
+            <option value="gradient_boosting">Gradient Boosting</option>
+            <option value="adaboost">AdaBoost</option>
+            <option value="stacked" selected>⭐ Stacked Model</option>
+          </select>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-predict"><i class="bi bi-search-heart"></i>Get Prediction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- KIDNEY -->
+  <div class="tab-pane fade" id="kidney" role="tabpanel">
+    <div class="form-card">
+      <div class="form-section-title"><i class="bi bi-capsule"></i> Kidney Disease Parameters</div>
+      <form method="POST" action="/predict/kidney">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="form-group">
+            <label>Age (years)</label>
+            <input type="number" class="form-control" name="age" placeholder="e.g. 45" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Blood Pressure (mmHg) <span class='range-hint'>Normal: 70–80</span></label>
+            <input type="number" step="0.1" class="form-control" name="blood_pressure" placeholder="e.g. 76" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Specific Gravity <span class='range-hint'>Normal: 1.005–1.025</span></label>
+            <input type="number" step="0.001" class="form-control" name="specific_gravity" placeholder="e.g. 1.015" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Albumin <span class='range-hint'>0=None, 5=High</span></label>
+            <select class="form-control" name="albumin" required><option value="" disabled selected>Select (0–5)</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Sugar <span class='range-hint'>0=None, 5=High</span></label>
+            <select class="form-control" name="sugar" required><option value="" disabled selected>Select (0–5)</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Red Blood Cells</label>
+            <select class="form-control" name="red_blood_cells" required><option value="" disabled selected>Select</option><option value="Normal">Normal</option><option value="Abnormal">Abnormal</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Pus Cells</label>
+            <select class="form-control" name="pus_cells" required><option value="" disabled selected>Select</option><option value="Normal">Normal</option><option value="Abnormal">Abnormal</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Pus Cell Clumps</label>
+            <select class="form-control" name="pus_cell_clumps" required><option value="" disabled selected>Select</option><option value="Present">Present</option><option value="Not Present">Not Present</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Bacteria</label>
+            <select class="form-control" name="bacteria" required><option value="" disabled selected>Select</option><option value="Present">Present</option><option value="Not Present">Not Present</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Blood Glucose Random (mg/dL)</label>
+            <input type="number" step="0.1" class="form-control" name="blood_glucose_random" placeholder="e.g. 121" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Blood Urea (mg/dL) <span class='range-hint'>Normal: 7–20</span></label>
+            <input type="number" step="0.1" class="form-control" name="blood_urea" placeholder="e.g. 36" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Serum Creatinine (mg/dL) <span class='range-hint'>Normal: 0.6–1.2</span></label>
+            <input type="number" step="0.1" class="form-control" name="serum_creatinine" placeholder="e.g. 1.2" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Sodium (mEq/L) <span class='range-hint'>Normal: 135–145</span></label>
+            <input type="number" step="0.1" class="form-control" name="sodium" placeholder="e.g. 138" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Potassium (mEq/L) <span class='range-hint'>Normal: 3.5–5.0</span></label>
+            <input type="number" step="0.1" class="form-control" name="potassium" placeholder="e.g. 4.5" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Hemoglobin (g/dL) <span class='range-hint'>Normal: 12–17</span></label>
+            <input type="number" step="0.1" class="form-control" name="hemoglobin" placeholder="e.g. 15" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Packed Cell Volume (%)</label>
+            <input type="number" class="form-control" name="pcv" placeholder="e.g. 44" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>White Blood Cell Count (cells/cumm)</label>
+            <input type="number" class="form-control" name="white_blood_cells" placeholder="e.g. 7800" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Red Blood Cell Count (million/cmm)</label>
+            <input type="number" step="0.01" class="form-control" name="red_blood_cells_count" placeholder="e.g. 5.2" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Hypertension</label>
+            <select class="form-control" name="hypertension" required><option value="" disabled selected>Select</option><option value="Yes">Yes</option><option value="No">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Diabetes Mellitus</label>
+            <select class="form-control" name="diabetes_mellitus" required><option value="" disabled selected>Select</option><option value="Yes">Yes</option><option value="No">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Coronary Artery Disease</label>
+            <select class="form-control" name="cad" required><option value="" disabled selected>Select</option><option value="yes">Yes</option><option value="no">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Appetite</label>
+            <select class="form-control" name="appetite" required><option value="" disabled selected>Select</option><option value="Good">Good</option><option value="Poor">Poor</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Pedal Edema</label>
+            <select class="form-control" name="pedal_edema" required><option value="" disabled selected>Select</option><option value="Yes">Yes</option><option value="No">No</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Anemia</label>
+            <select class="form-control" name="anemia" required><option value="" disabled selected>Select</option><option value="Yes">Yes</option><option value="No">No</option></select>
+          </div></div>
+        </div>
+
+        <div class="algo-section mt-4">
+          <h6><i class="bi bi-cpu me-2"></i>Select Prediction Algorithms</h6>
+          <small class="algo-select-label">
+            Search and select one or more algorithms
+          </small>
+          <select id="algo-kidney" name="algorithms" multiple placeholder="Search algorithms...">
+            <option value="logistic_regression" selected>Logistic Regression</option>
+            <option value="decision_tree">Decision Tree</option>
+            <option value="random_forest">Random Forest</option>
+            <option value="knn">KNN</option>
+            <option value="svm">SVM</option>
+            <option value="gradient_boosting">Gradient Boosting</option>
+            <option value="adaboost">AdaBoost</option>
+          </select>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-predict"><i class="bi bi-search-heart"></i>Get Prediction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LIVER -->
+  <div class="tab-pane fade" id="liver" role="tabpanel">
+    <div class="form-card">
+      <div class="form-section-title"><i class="bi bi-bandaid"></i> Liver Disease Parameters</div>
+      <form method="POST" action="/predict/liver">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="form-group">
+            <label>Age (years)</label>
+            <input type="number" class="form-control" name="age" placeholder="e.g. 45" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Gender</label>
+            <select class="form-control" name="gender" required><option value="" disabled selected>Select Gender</option><option value="Male">Male</option><option value="Female">Female</option></select>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Total Bilirubin (mg/dL) <span class='range-hint'>Normal: 0.1–1.2</span></label>
+            <input type="number" step="0.01" class="form-control" name="total_bilirubin" placeholder="e.g. 0.9" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Direct Bilirubin (mg/dL) <span class='range-hint'>Normal: 0–0.3</span></label>
+            <input type="number" step="0.01" class="form-control" name="direct_bilirubin" placeholder="e.g. 0.2" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Alkaline Phosphotase (IU/L) <span class='range-hint'>Normal: 44–147</span></label>
+            <input type="number" class="form-control" name="alkaline_phosphotase" placeholder="e.g. 100" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Alamine Aminotransferase (IU/L) <span class='range-hint'>Normal: 7–56</span></label>
+            <input type="number" class="form-control" name="alamine_aminotransferase" placeholder="e.g. 30" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Aspartate Aminotransferase (IU/L) <span class='range-hint'>Normal: 10–40</span></label>
+            <input type="number" class="form-control" name="aspartate_aminotransferase" placeholder="e.g. 25" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Total Proteins (g/dL) <span class='range-hint'>Normal: 6–8.3</span></label>
+            <input type="number" step="0.1" class="form-control" name="total_proteins" placeholder="e.g. 7" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Albumin (g/dL) <span class='range-hint'>Normal: 3.5–5.5</span></label>
+            <input type="number" step="0.1" class="form-control" name="albumin" placeholder="e.g. 4.5" required>
+          </div></div>
+          <div class="col-md-6"><div class="form-group">
+            <label>Albumin Globulin Ratio <span class='range-hint'>Normal: 1.0–2.5</span></label>
+            <input type="number" step="0.01" class="form-control" name="albumin_globulin_ratio" placeholder="e.g. 1.5" required>
+          </div></div>
+        </div>
+
+        <div class="algo-section mt-4">
+          <h6><i class="bi bi-cpu me-2"></i>Select Prediction Algorithms</h6>
+          <small class="algo-select-label">
+            Search and select one or more algorithms
+          </small>
+          <select id="algo-liver" name="algorithms" multiple placeholder="Search algorithms...">
+            <option value="logistic_regression">Logistic Regression</option>
+            <option value="decision_tree">Decision Tree</option>
+            <option value="random_forest" selected>Random Forest</option>
+            <option value="knn">KNN</option>
+            <option value="svm">SVM</option>
+            <option value="gradient_boosting">Gradient Boosting</option>
+            <option value="adaboost">AdaBoost</option>
+          </select>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-predict"><i class="bi bi-search-heart"></i>Get Prediction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+<br>
+
+<!-- Tom Select JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/js/tom-select.complete.min.js"></script>
+<script>
+  /* Shared Tom Select config — checkbox_options shows tick marks in dropdown */
+  var tsConfig = {
+    plugins: ['remove_button', 'checkbox_options'],
+    placeholder: 'Search and select algorithms...',
+    closeAfterSelect: false,
+    hideSelected: false
+  };
+
+  /* Initialise all four algorithm selects */
+  ['heart', 'diabetes', 'kidney', 'liver'].forEach(function(id) {
+    new TomSelect('#algo-' + id, Object.assign({}, tsConfig));
+  });
+</script>
+
+<script>
+  /* Auto-activate tab from URL hash e.g. /predict#diabetes */
+  (function () {
+    const hash = window.location.hash; // e.g. "#diabetes"
+    if (hash) {
+      const tabLink = document.querySelector('#diseaseTab a[href="' + hash + '"]');
+      if (tabLink) {
+        // Remove active from default tab
+        document.querySelectorAll('#diseaseTab .nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => { p.classList.remove('show','active'); });
+        // Activate target
+        tabLink.classList.add('active');
+        const pane = document.querySelector(hash);
+        if (pane) { pane.classList.add('show','active'); }
+      }
+    }
+  })();
+</script>
+
+{% endblock %}

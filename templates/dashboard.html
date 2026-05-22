@@ -1,0 +1,365 @@
+{% extends 'base.html' %} {% block content %}
+<style>
+/* ── Design tokens ── */
+:root {
+  --d-blue:    #0f4c81;
+  --d-blue2:   #1a6ef5;
+  --d-red:     #ef4444;
+  --d-green:   #22c55e;
+  --d-orange:  #f97316;
+  --d-purple:  #8b5cf6;
+  --d-bg:      #f0f4f8;
+  --d-card:    #ffffff;
+  --d-border:  #e2e8f0;
+  --d-text:    #1e293b;
+  --d-muted:   #64748b;
+  --d-shadow:  0 2px 16px rgba(15,76,129,0.08);
+  --d-shadow2: 0 8px 32px rgba(15,76,129,0.14);
+  --d-radius:  18px;
+}
+
+/* ── Banner ── */
+.db-banner {
+  background: linear-gradient(120deg, #0b3d6b 0%, #0f4c81 50%, #1565c0 100%);
+  border-radius: var(--d-radius);
+  padding: 36px 40px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.db-banner::before {
+  content: '';
+  position: absolute; right: -60px; top: -60px;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+.db-banner::after {
+  content: '';
+  position: absolute; left: -40px; bottom: -60px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(0,201,167,0.07);
+  pointer-events: none;
+}
+.db-banner-left { position: relative; z-index: 1; }
+.db-banner-left .greet {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.55);
+  margin-bottom: 6px;
+}
+.db-banner-left h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.7rem; font-weight: 800;
+  color: #fff; margin: 0 0 6px;
+  line-height: 1.2;
+}
+.db-banner-left p {
+  font-size: 0.85rem; color: rgba(255,255,255,0.65); margin: 0;
+}
+.db-banner-right { position: relative; z-index: 1; }
+.btn-new-pred {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #00c9a7; color: #fff;
+  border: none; border-radius: 12px;
+  padding: 12px 24px; font-weight: 700; font-size: 0.9rem;
+  text-decoration: none; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,201,167,0.35);
+}
+.btn-new-pred:hover { background: #00b596; color: #fff; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,201,167,0.45); }
+
+/* ── Stat cards ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+@media(max-width:768px){ .stat-grid { grid-template-columns: repeat(2,1fr); } }
+
+.sc {
+  background: var(--d-card);
+  border-radius: var(--d-radius);
+  border: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow);
+  padding: 22px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: transform .2s, box-shadow .2s;
+  position: relative; overflow: hidden;
+}
+.sc:hover { transform: translateY(-3px); box-shadow: var(--d-shadow2); }
+.sc-accent {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; border-radius: var(--d-radius) var(--d-radius) 0 0;
+}
+.sc-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+}
+.sc-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 2.2rem; font-weight: 800;
+  color: var(--d-text); line-height: 1;
+}
+.sc-lbl { font-size: 0.8rem; color: var(--d-muted); font-weight: 500; }
+
+/* ── Section label ── */
+.sec-label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--d-muted);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--d-border); }
+
+/* ── Chart card ── */
+.chart-card {
+  background: var(--d-card);
+  border-radius: var(--d-radius);
+  border: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow);
+  padding: 24px;
+  height: 100%;
+}
+.chart-card h6 {
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--d-text); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── History ── */
+.history-wrap {
+  background: var(--d-card);
+  border-radius: var(--d-radius);
+  border: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow);
+  padding: 24px;
+  height: 100%;
+}
+.history-wrap h6 {
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--d-text); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.history-scroll { max-height: 420px; overflow-y: auto; padding-right: 4px; }
+.history-scroll::-webkit-scrollbar { width: 4px; }
+.history-scroll::-webkit-scrollbar-thumb { background: #c0cfe0; border-radius: 4px; }
+
+.hc {
+  border-radius: 12px;
+  border: 1px solid var(--d-border);
+  border-left: 4px solid;
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  display: flex; justify-content: space-between;
+  align-items: flex-start; flex-wrap: wrap; gap: 10px;
+  transition: box-shadow .15s, transform .15s;
+  background: #fff;
+}
+.hc:hover { box-shadow: var(--d-shadow2); transform: translateX(3px); }
+.hc:last-child { margin-bottom: 0; }
+
+.hc-left { display: flex; flex-direction: column; gap: 4px; }
+.disease-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+}
+.hc-date { font-size: 0.75rem; color: var(--d-muted); margin-top: 2px; }
+
+.hc-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.rb {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 0.71rem; font-weight: 700;
+}
+.rb-pos { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.rb-neg { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 48px 20px; text-align: center;
+}
+.empty-state .es-icon {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: #f1f5fd; display: flex; align-items: center;
+  justify-content: center; font-size: 2rem; margin-bottom: 16px;
+}
+.empty-state h6 { font-weight: 700; color: var(--d-text); margin-bottom: 6px; }
+.empty-state p { font-size: 0.85rem; color: var(--d-muted); margin-bottom: 18px; }
+.btn-start {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--d-blue); color: #fff;
+  border-radius: 10px; padding: 10px 22px;
+  font-size: 0.85rem; font-weight: 700;
+  text-decoration: none; transition: all .2s;
+}
+.btn-start:hover { background: var(--d-blue2); color: #fff; transform: translateY(-1px); }
+</style>
+
+<!-- ── Banner ── -->
+<div class="db-banner">
+  <div class="db-banner-left">
+    <h2>{{ user_name }}</h2>
+    <p><i class="bi bi-envelope me-1"></i>{{ user_email }}</p>
+  </div>
+  <div class="db-banner-right">
+    <a href="/predict" class="btn-new-pred">
+      <i class="bi bi-plus-circle-fill"></i> New Prediction
+    </a>
+  </div>
+</div>
+
+<!-- ── Stat Cards ── -->
+{% set total = predictions | length %}
+{% set pos_count = predictions | selectattr('results') | map(attribute='results') | sum(start=[]) | selectattr('result','equalto','Positive') | list | length %}
+{% set neg_count = predictions | selectattr('results') | map(attribute='results') | sum(start=[]) | selectattr('result','equalto','Negative') | list | length %}
+{% set disease_count = predictions | map(attribute='disease') | list | unique | list | length %}
+
+<div class="stat-grid">
+  <div class="sc">
+    <div class="sc-accent" style="background: linear-gradient(90deg, #1a6ef5, #0f4c81);"></div>
+    <div class="sc-icon" style="background:#eff6ff;"><i class="bi bi-clipboard2-pulse" style="color:#1a6ef5;"></i></div>
+    <div class="sc-val">{{ total }}</div>
+    <div class="sc-lbl">Total Tests</div>
+  </div>
+  <div class="sc">
+    <div class="sc-accent" style="background: linear-gradient(90deg, #ef4444, #b91c1c);"></div>
+    <div class="sc-icon" style="background:#fef2f2;"><i class="bi bi-exclamation-triangle" style="color:#ef4444;"></i></div>
+    <div class="sc-val">{{ pos_count }}</div>
+    <div class="sc-lbl">Positive Results</div>
+  </div>
+  <div class="sc">
+    <div class="sc-accent" style="background: linear-gradient(90deg, #22c55e, #15803d);"></div>
+    <div class="sc-icon" style="background:#f0fdf4;"><i class="bi bi-check-circle" style="color:#22c55e;"></i></div>
+    <div class="sc-val">{{ neg_count }}</div>
+    <div class="sc-lbl">Negative Results</div>
+  </div>
+  <div class="sc">
+    <div class="sc-accent" style="background: linear-gradient(90deg, #f97316, #c2410c);"></div>
+    <div class="sc-icon" style="background:#fff7ed;"><i class="bi bi-heart-pulse" style="color:#f97316;"></i></div>
+    <div class="sc-val">{{ disease_count }}</div>
+    <div class="sc-lbl">Diseases Tested</div>
+  </div>
+</div>
+
+<!-- ── Analytics + History ── -->
+<div class="sec-label">Analytics &amp; History</div>
+<div class="row g-4">
+
+  <!-- Chart -->
+  <div class="col-lg-4">
+    <div class="chart-card">
+      <h6><i class="bi bi-pie-chart-fill" style="color:#1a6ef5;"></i> Tests by Disease</h6>
+      <canvas id="diseaseChart"></canvas>
+      <div id="chartEmpty" class="text-center text-muted mt-3" style="display:none; font-size:0.85rem;">
+        No prediction data yet.
+      </div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="col-lg-8">
+    <div class="history-wrap">
+      <h6><i class="bi bi-clock-history" style="color:#1a6ef5;"></i> Prediction History</h6>
+
+      {% if predictions %}
+      <div class="history-scroll">
+        {% for p in predictions %}
+        {% if p.disease == 'Heart Disease' %}
+          {% set dc = '#ef4444' %}
+        {% elif p.disease == 'Diabetes' %}
+          {% set dc = '#f97316' %}
+        {% elif p.disease == 'Liver Disease' %}
+          {% set dc = '#8b5cf6' %}
+        {% else %}
+          {% set dc = '#1a6ef5' %}
+        {% endif %}
+
+        <div class="hc" style="border-left-color: {{ dc }};">
+          <div class="hc-left">
+            <div>
+              <span class="disease-tag" style="background: {{ dc }};">{{ di }} {{ p.disease }}</span>
+            </div>
+            <div class="hc-date"><i class="bi bi-calendar3 me-1"></i>{{ p.date }}</div>
+          </div>
+          <div class="hc-badges">
+            {% for r in p.results %}
+              <span class="rb {% if r.result == 'Positive' %}rb-pos{% else %}rb-neg{% endif %}">
+                {% if r.result == 'Positive' %}{% else %}{% endif %}
+                {{ r.model }}: {{ r.result }}
+              </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="empty-state">
+        <div class="es-icon">🩺</div>
+        <h6>No predictions yet</h6>
+        <p>Run your first health screening to see results here.</p>
+        <a href="/predict" class="btn-start">
+          <i class="bi bi-activity"></i> Start Prediction
+        </a>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const predictions = {{ predictions | tojson }};
+  const counts = {};
+  predictions.forEach(p => { counts[p.disease] = (counts[p.disease] || 0) + 1; });
+  const labels = Object.keys(counts);
+  const data   = Object.values(counts);
+  const colorMap = {
+    'Heart Disease': '#ef4444',
+    'Diabetes':      '#f97316',
+    'Liver Disease': '#8b5cf6',
+    'Kidney Disease':'#1a6ef5'
+  };
+  const colors = labels.map(l => colorMap[l] || '#94a3b8');
+
+  if (labels.length > 0) {
+    new Chart(document.getElementById('diseaseChart'), {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors,
+          borderWidth: 3,
+          borderColor: '#fff',
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        cutout: '65%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 12, family: "'Plus Jakarta Sans', sans-serif" },
+              padding: 16, boxWidth: 12, usePointStyle: true, pointStyleWidth: 10
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw} test${ctx.raw > 1 ? 's' : ''}`
+            }
+          }
+        }
+      }
+    });
+  } else {
+    document.getElementById('diseaseChart').style.display = 'none';
+    document.getElementById('chartEmpty').style.display = 'block';
+  }
+</script>
+{% endblock %}

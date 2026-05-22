@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+:root {
+  --g-card:       #ffffff;
+  --g-border:     #e4ecf7;
+  --g-bg:         #f0f4fb;
+  --g-primary:    #1a6ef5;
+  --g-text:       #1a2236;
+  --g-muted:      #6b7a99;
+  --g-shadow:     0 2px 16px rgba(26,110,245,0.07);
+  --g-shadow-lg:  0 8px 40px rgba(26,110,245,0.13);
+}
+
+/* ── Banner ── */
+.g-banner {
+  background: linear-gradient(120deg, #0d1b3e 0%, #1a3a8a 55%, #1a6ef5 100%);
+  border-radius: 22px; padding: 42px 48px; color: #fff;
+  margin-bottom: 32px; position: relative; overflow: hidden;
+}
+.g-banner::before {
+  content: ''; position: absolute; right: -60px; top: -60px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+.g-banner::after {
+  content: ''; position: absolute; left: -40px; bottom: -70px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.g-banner-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 20px; font-size: 0.74rem; font-weight: 700;
+  letter-spacing: .06em; padding: 4px 15px; margin-bottom: 14px;
+  color: #a5d3ff; text-transform: uppercase;
+}
+.g-banner h1  { font-size: 1.9rem; font-weight: 800; margin-bottom: 6px; }
+.g-banner p   { opacity: .78; font-size: .93rem; margin: 0; }
+.g-banner-meta {
+  display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap;
+}
+.g-banner-meta .bm-item {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px; padding: 8px 18px; font-size: .83rem;
+}
+.g-banner-meta .bm-num { font-weight: 800; font-size: 1.15rem; margin-right: 3px; }
+
+/* ── Section label ── */
+.g-sec {
+  font-size: .73rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--g-muted);
+  margin-bottom: 16px; margin-top: 32px;
+  display: flex; align-items: center; gap: 10px;
+}
+.g-sec::after { content: ''; flex: 1; height: 1px; background: var(--g-border); }
+
+/* ── Stat cards ── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+.sc {
+  background: var(--g-card); border-radius: 18px;
+  padding: 22px 20px; border: 1px solid var(--g-border);
+  box-shadow: var(--g-shadow); position: relative; overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+.sc:hover { transform: translateY(-4px); box-shadow: var(--g-shadow-lg); }
+.sc .ico  { font-size: 1.8rem; margin-bottom: 12px; }
+.sc .val  { font-size: 2.1rem; font-weight: 800; color: var(--g-text); line-height: 1; margin-bottom: 4px; }
+.sc .lbl  { font-size: .78rem; color: var(--g-muted); font-weight: 500; }
+.sc .bar  { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; border-radius: 0 0 18px 18px; }
+
+/* ── Chart card ── */
+.cc {
+  background: var(--g-card); border-radius: 18px;
+  border: 1px solid var(--g-border); box-shadow: var(--g-shadow);
+  padding: 24px; height: 100%;
+}
+.cc h6 { font-size: .88rem; font-weight: 700; color: var(--g-text); margin-bottom: 18px; }
+
+/* ── Recent predictions ── */
+.hc {
+  background: var(--g-card); border-radius: 13px;
+  border: 1px solid var(--g-border); box-shadow: var(--g-shadow);
+  margin-bottom: 10px; border-left: 4px solid var(--g-primary);
+  transition: transform .15s;
+}
+.hc:hover { transform: translateX(3px); }
+.hc .card-body { padding: 13px 17px; }
+
+/* ── Activity feed ── */
+.act-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid var(--g-border); font-size: .83rem;
+}
+.act-item:last-child { border-bottom: none; }
+.act-dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.act-time { color: var(--g-muted); font-size: .75rem; }
+
+/* ── Disease & result pills ── */
+.dp { display: inline-block; border-radius: 20px; padding: 2px 10px; font-size: .72rem; font-weight: 700; }
+.dp-heart    { background: #fef2f2; color: #ef4444; }
+.dp-diabetes { background: #fffbeb; color: #d97706; }
+.dp-kidney   { background: #eff6ff; color: #3b82f6; }
+.dp-liver    { background: #f5f3ff; color: #7c3aed; }
+
+.rb { display: inline-block; border-radius: 20px; padding: 2px 9px; font-size: .71rem; font-weight: 700; }
+.rb-pos { background: #fef2f2; color: #dc2626; }
+.rb-neg { background: #f0fdf4; color: #16a34a; }
+.rb-mix { background: #f0f9ff; color: #0369a1; }
+
+/* ── Summary insight cards ── */
+.insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.insight-card {
+  background: var(--g-card); border-radius: 16px;
+  border: 1px solid var(--g-border); box-shadow: var(--g-shadow);
+  padding: 20px 22px; display: flex; align-items: center; gap: 16px;
+  justify-content: center;   /* Center horizontally */
+  text-align: center;        /* Center text */
+}
+.insight-card .ic-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; flex-shrink: 0;
+}
+.insight-card .ic-label { font-size: .78rem; color: var(--g-muted); font-weight: 500; margin-bottom: 2px; }
+.insight-card .ic-val   { font-size: 1.3rem; font-weight: 800; color: var(--g-text); }
+
+@media(max-width: 768px) {
+  .g-banner { padding: 28px 22px; }
+  .g-banner h1 { font-size: 1.4rem; }
+  .g-banner-meta { gap: 10px; }
+}
+</style>
+
+
+<!-- ─────────────── BANNER ─────────────── -->
+<div class="g-banner">
+  <h1>📊 Overview</h1>
+  <div class="g-banner-meta">
+    <div class="bm-item"><span class="bm-num">{{ total_users }}</span> Registered Users</div>
+    <div class="bm-item"><span class="bm-num">{{ total_predictions }}</span> Total Predictions</div>
+    <div class="bm-item"><span class="bm-num">4</span> Diseases Covered</div>
+  </div>
+</div>
+
+<!-- ─────────────── KEY INSIGHTS ─────────────── -->
+<div class="g-sec">Key Insights</div>
+<div class="insight-grid mb-4">
+  <div class="insight-card">
+    <div>
+      <div class="ic-label">Positive Rate</div>
+      <div class="ic-val">
+        {% if total_predictions > 0 %}
+          {{ ((total_positive / total_predictions) * 100) | round(1) }}%
+        {% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="insight-card">
+    <div>
+      <div class="ic-label">Negative Rate</div>
+      <div class="ic-val">
+        {% if total_predictions > 0 %}
+          {{ ((total_negative / total_predictions) * 100) | round(1) }}%
+        {% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="insight-card">
+    <div>
+      <div class="ic-label">Avg Tests / User</div>
+      <div class="ic-val">
+        {% if total_users > 0 %}
+          {{ (total_predictions / total_users) | round(1) }}
+        {% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="insight-card">
+    <div>
+      <div class="ic-label">Most Tested Disease</div>
+      <div class="ic-val" style="font-size:1rem;">
+        {% set max_disease = disease_counts | dictsort(by='value') | reverse | first %}
+        {% if max_disease %}{{ max_disease[0] }}{% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────── CHARTS ─────────────── -->
+<div class="g-sec">Analytics</div>
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="cc">
+      <h6>🩺 Disease Distribution</h6>
+      <canvas id="pieChart" height="210"></canvas>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="cc">
+      <h6>⚖️ Positive vs Negative</h6>
+      <canvas id="doughnutChart" height="210"></canvas>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="cc">
+      <h6>📊 Tests per Disease</h6>
+      <canvas id="barChart" height="210"></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+<!-- ─────────────── CHARTS JS ─────────────── -->
+<script>
+const diseaseLabels  = {{ disease_labels | tojson }};
+const diseaseValues  = {{ disease_values | tojson }};
+const totalPositive  = {{ total_positive }};
+const totalNegative  = {{ total_negative }};
+const activityDates  = {{ activity_dates | tojson }};
+const activityCounts = {{ activity_counts | tojson }};
+const diseaseColors  = ['#ef4444','#f59e0b','#3b82f6','#8b5cf6'];
+
+new Chart(document.getElementById('pieChart'), {
+  type: 'pie',
+  data: {
+    labels: diseaseLabels,
+    datasets: [{ data: diseaseValues, backgroundColor: diseaseColors, borderWidth: 3, borderColor: '#fff' }]
+  },
+  options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12, boxWidth: 11 } } } }
+});
+
+new Chart(document.getElementById('doughnutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Positive','Negative'],
+    datasets: [{ data: [totalPositive, totalNegative], backgroundColor: ['#ef4444','#22c55e'], borderWidth: 3, borderColor: '#fff' }]
+  },
+  options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12, boxWidth: 11 } } } }
+});
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: diseaseLabels,
+    datasets: [{ label: 'Tests', data: diseaseValues, backgroundColor: diseaseColors, borderRadius: 8, borderSkipped: false }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#e4ecf7' } },
+      x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: activityDates,
+    datasets: [{
+      label: 'Predictions', data: activityCounts,
+      borderColor: '#1a6ef5', backgroundColor: 'rgba(26,110,245,0.08)',
+      borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#1a6ef5',
+      fill: true, tension: 0.4
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#e4ecf7' } },
+      x: { ticks: { font: { size: 10 }, maxRotation: 45, maxTicksLimit: 10 }, grid: { display: false } }
+    }
+  }
+});
+</script>
+
+{% endblock %}

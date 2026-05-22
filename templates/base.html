@@ -1,0 +1,556 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedPredict – Disease Prediction System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand" href="/">MedPredict</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/about"><i class="bi bi-info-circle me-1"></i>About</a></li>
+        <li class="nav-item"><a class="nav-link" href="/contact"><i class="bi bi-envelope me-1"></i>Contact</a></li>
+     {% if session.get('logged_in') %}
+          <li class="nav-item"><a class="nav-link" href="/predict"><i class="bi bi-activity me-1"></i>Predict</a></li>
+          <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/hospitals"><i class="bi bi-hospital me-1"></i>Hospitals</a></li>
+          <li class="nav-item ms-1">
+            <a class="nav-link nav-btn-signup" href="/logout"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-person me-1"></i>Login</a></li>
+          <li class="nav-item ms-1">
+            <a class="nav-link nav-btn-signup" href="/signup"><i class="bi bi-person-plus me-1"></i>Sign Up</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-3">
+  {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+          <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} me-2"></i>{{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<main class="{% block main_class %}container py-4{% endblock %}">
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <div class="container">
+    <p class="mb-1"><strong style="color:#fff;">MedPredict</strong> — AI-Powered Disease Prediction System</p>
+    <small>&copy; 2025 All Rights Reserved · Built with ❤️ for Better Health</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% if session.get('logged_in') and request.path != '/chatbot' %}
+   <!-- chatbot widget -->
+<style>
+/* ── Launcher bubble ── */
+#floatChatBtn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 1050;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: linear-gradient(135deg, #1a6ef5, #0d47a1);
+  border: none; color: #fff; font-size: 1.45rem;
+  box-shadow: 0 6px 24px rgba(26,110,245,0.45);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+}
+#floatChatBtn:hover { transform: scale(1.08); box-shadow: 0 10px 32px rgba(26,110,245,0.55); }
+
+/* Pulse ring */
+#floatChatBtn::after {
+  content: ''; position: absolute; width: 58px; height: 58px;
+  border-radius: 50%; border: 2px solid rgba(26,110,245,0.5);
+  animation: fcPulse 2.2s ease-out infinite;
+}
+@keyframes fcPulse {
+  0%   { transform: scale(1);   opacity: .7; }
+  70%  { transform: scale(1.55); opacity: 0; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+
+/* Unread badge */
+#floatBadge {
+  position: absolute; top: -3px; right: -3px;
+  background: #ef4444; color: #fff; font-size: .62rem; font-weight: 800;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff; display: none;
+}
+
+/* ── Chat window ── */
+#floatChatWindow {
+  position: fixed; bottom: 100px; right: 28px; z-index: 1049;
+  width: 380px; max-width: calc(100vw - 40px);
+  background: #fff; border-radius: 22px;
+  box-shadow: 0 12px 48px rgba(26,110,245,0.18);
+  border: 1px solid #dbe8fd;
+  display: none; flex-direction: column;
+  overflow: hidden;
+  /* animate in */
+  transform-origin: bottom right;
+  animation: fcSlideIn .22s ease;
+}
+@keyframes fcSlideIn {
+  from { opacity:0; transform: scale(.88) translateY(16px); }
+  to   { opacity:1; transform: scale(1)  translateY(0); }
+}
+#floatChatWindow.fc-open { display: flex; }
+
+/* Header */
+.fc-head {
+  background: linear-gradient(120deg, #0d1b3e 0%, #1a3a8a 55%, #1a6ef5 100%);
+  padding: 14px 16px; display: flex; align-items: center; gap: 11px;
+  flex-shrink: 0;
+}
+.fc-av {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.fc-head-info { flex: 1; }
+.fc-head-title { font-family:'Sora',sans-serif; font-weight:700; color:#fff; font-size:.92rem; }
+.fc-head-sub {
+  font-size:.68rem; color:rgba(255,255,255,.75);
+  display:flex; align-items:center; gap:5px; margin-top:2px;
+}
+.fc-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; animation:pulse 2s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+.fc-head-actions { display:flex; gap:6px; }
+.fc-icon-btn {
+  width: 30px; height: 30px; border-radius: 8px; border: none;
+  background: rgba(255,255,255,0.12); color:#fff; font-size:.82rem;
+  cursor: pointer; display:flex; align-items:center; justify-content:center;
+  transition: background .15s;
+}
+.fc-icon-btn:hover { background: rgba(255,255,255,0.22); }
+
+/* Messages area */
+.fc-messages {
+  flex: 1; overflow-y: auto; padding: 14px 14px;
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 340px; scroll-behavior: smooth;
+}
+.fc-messages::-webkit-scrollbar { width: 3px; }
+.fc-messages::-webkit-scrollbar-thumb { background: #c7d2e4; border-radius: 3px; }
+
+/* Bubbles */
+.fcm { display:flex; gap:7px; align-items:flex-end; }
+.fcm.user { flex-direction:row-reverse; }
+.fcb {
+  max-width:80%; padding:9px 13px; border-radius:16px;
+  font-size:.83rem; line-height:1.6;
+}
+.fcb.ai   { background:#f1f5fd; color:#1a2236; border-bottom-left-radius:3px; }
+.fcb.user { background:#1a6ef5; color:#fff;    border-bottom-right-radius:3px; }
+.fcb.err  { background:#fef2f2; border:1px solid #fca5a5; color:#dc2626; }
+.fcb ul   { padding-left:14px; margin:6px 0 0; }
+.fcb li   { margin-bottom:2px; }
+.fcb strong { font-weight:700; }
+
+.fcm-av {
+  width:27px; height:27px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:.8rem;
+}
+.fcm-av.ai   { background:#eff6ff; }
+.fcm-av.user { background:#1a6ef5; color:#fff; font-size:.6rem; font-weight:700; }
+.fcm-time { font-size:.58rem; color:#6b7a99; margin-top:2px; }
+.fcm.user .fcm-time { text-align:right; }
+
+/* Typing dots */
+.fc-typing { display:none; align-items:flex-end; gap:7px; }
+.fc-typing.show { display:flex; }
+.fc-typing-dots {
+  background:#f1f5fd; border-radius:16px; border-bottom-left-radius:3px;
+  padding:9px 13px; display:flex; gap:4px; align-items:center;
+}
+.ftd { width:5px; height:5px; border-radius:50%; background:#94a3b8; animation:fbounce 1.4s infinite ease-in-out; }
+.ftd:nth-child(2){animation-delay:.2s;} .ftd:nth-child(3){animation-delay:.4s;}
+@keyframes fbounce{ 0%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-5px);} }
+
+/* Quick chips */
+.fc-chips {
+  padding: 8px 14px 0;
+  display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0;
+}
+.fc-chip {
+  background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8;
+  border-radius:20px; padding:4px 10px; font-size:.72rem; font-weight:600;
+  cursor:pointer; transition:all .15s; white-space:nowrap;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.fc-chip:hover { background:#dbeafe; border-color:#93c5fd; }
+
+/* Input */
+.fc-input-row {
+  padding:10px 13px; border-top:1px solid #e4ecf7;
+  display:flex; gap:8px; align-items:flex-end; flex-shrink:0;
+}
+.fc-input-row textarea {
+  flex:1; resize:none; border:1px solid #e4ecf7; border-radius:11px;
+  padding:8px 12px; font-size:.82rem; color:#1a2236;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  max-height:80px; overflow-y:auto; outline:none; transition:border-color .2s;
+}
+.fc-input-row textarea:focus { border-color:#1a6ef5; }
+.fc-input-row textarea::placeholder { color:#6b7a99; }
+.fc-send {
+  width:36px; height:36px; background:#1a6ef5; border:none;
+  border-radius:10px; color:#fff; font-size:.9rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s; flex-shrink:0;
+}
+.fc-send:hover    { background:#1557d4; transform:scale(1.05); }
+.fc-send:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+/* Disclaimer strip */
+.fc-disclaimer {
+  padding: 7px 14px;
+  font-size: .65rem; color: #92400e;
+  background: #fffbeb; border-top: 1px solid #fde68a;
+  flex-shrink: 0; line-height: 1.4;
+}
+
+/* Mobile */
+@media(max-width:480px){
+  #floatChatWindow { width:calc(100vw - 20px); right:10px; bottom:88px; }
+  #floatChatBtn    { right:16px; bottom:16px; }
+}
+</style>
+
+<!-- Launcher button -->
+<button id="floatChatBtn" onclick="toggleFloatChat()" title="AI Health Assistant" aria-label="Open Health Chatbot">
+  <span id="floatBadge">1</span>
+  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+  </svg>
+</button>
+
+<!-- Chat window -->
+<div id="floatChatWindow">
+
+  <!-- Header -->
+  <div class="fc-head">
+    <div class="fc-av">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#fff" viewBox="0 0 16 16">
+        <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+      </svg>
+    </div>
+    <div class="fc-head-info">
+      <div class="fc-head-title">MedPredict AI</div>
+      <div class="fc-head-sub"><span class="fc-dot"></span> Online · Health Assistant</div>
+    </div>
+
+    <div class="fc-head-actions">
+
+    <a href="/chatbot"
+       class="fc-icon-btn"
+       title="Open Full Screen"
+       style="text-decoration:none;">
+        <i class="bi bi-arrows-fullscreen"></i>
+    </a>
+
+    <button class="fc-icon-btn"
+            onclick="fcClearChat()"
+            title="Clear Chat">
+        <i class="bi bi-trash3"></i>
+    </button>
+
+    <button class="fc-icon-btn"
+            onclick="toggleFloatChat()"
+            title="Close">
+        <i class="bi bi-x-lg"></i>
+    </button>
+
+</div>
+  </div>
+
+  <!-- Messages -->
+  <div class="fc-messages" id="fcMessages">
+    <div class="fcm" id="fcWelcome">
+      <div class="fcm-av ai">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#1a6ef5" viewBox="0 0 16 16">
+          <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+        </svg>
+      </div>
+      <div>
+        <div class="fcb ai">
+          Hi <strong>{{ session.get('user_name', 'there') }}</strong> 👋 I'm your AI Health Assistant. Ask me about your results, diet tips, or symptoms!
+        </div>
+        <div class="fcm-time" id="fcWelcomeTime"></div>
+      </div>
+    </div>
+
+    <div class="fc-typing" id="fcTyping">
+      <div class="fcm-av ai">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#1a6ef5" viewBox="0 0 16 16">
+          <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/>
+        </svg>
+      </div>
+      <div class="fc-typing-dots">
+        <div class="ftd"></div><div class="ftd"></div><div class="ftd"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick chips (hidden after first send) -->
+  <div class="fc-chips" id="fcChips">
+    <button class="fc-chip" onclick="fcQuick('Summarize my health predictions')">Summarize results</button>
+    <button class="fc-chip" onclick="fcQuick('Give me diet tips based on my results')">Diet tips</button>
+    <button class="fc-chip" onclick="fcQuick('What symptoms should I watch for?')">Symptoms</button>
+  </div>
+
+  <!-- Input -->
+  <div class="fc-input-row">
+    <textarea id="fcInput" rows="1" placeholder="Ask about your health…"
+      onkeydown="fcHandleKey(event)" oninput="fcAutoResize(this)"></textarea>
+    <button class="fc-send" id="fcSend" onclick="fcSend()" title="Send">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="fc-disclaimer">
+    ⚠️ For informational purposes only. Always consult a qualified medical professional.
+  </div>
+</div>
+
+<script>
+(function () {
+  /* ── State ── */
+  const USER_INITIAL = ('{{ session.get("user_name","U") }}'[0] || 'U').toUpperCase();
+  let fcHistory =
+JSON.parse(
+localStorage.getItem("medpredict_chat")
+|| "[]"
+);
+  let fcIsOpen  = false;
+
+  /* Welcome timestamp */
+  document.getElementById('fcWelcomeTime').textContent = fcNow();
+
+  /* Show badge on first load (hint to user) */
+  setTimeout(() => {
+    const b = document.getElementById('floatBadge');
+    b.style.display = 'flex';
+  }, 2000);
+
+  /* ── Toggle open/close ── */
+  window.toggleFloatChat = function () {
+    const win = document.getElementById('floatChatWindow');
+    fcIsOpen = !fcIsOpen;
+    if (fcIsOpen) {
+      win.classList.add('fc-open');
+      /* hide badge when opened */
+      document.getElementById('floatBadge').style.display = 'none';
+      setTimeout(() => {
+        document.getElementById('fcInput').focus();
+        fcScrollBottom();
+      }, 50);
+    } else {
+      win.classList.remove('fc-open');
+    }
+  };
+
+  /* ── Helpers ── */
+  function fcNow() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function fcScrollBottom() {
+    const el = document.getElementById('fcMessages');
+    el.scrollTop = el.scrollHeight;
+  }
+
+  window.fcAutoResize = function (el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+  };
+
+  window.fcHandleKey = function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); fcSend(); }
+  };
+
+  /* Minimal markdown → HTML */
+  function fcMd(raw) {
+    let t = raw
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g,'<em>$1</em>')
+      .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>');
+    const lines = t.split('\n'), out = []; let inList = false;
+    for (const line of lines) {
+      const li = line.match(/^[-•*] (.+)/);
+      const ni = line.match(/^\d+\. (.+)/);
+      if (li || ni) {
+        if (!inList) { out.push('<ul>'); inList = true; }
+        out.push('<li>' + (li ? li[1] : ni[1]) + '</li>');
+      } else {
+        if (inList) { out.push('</ul>'); inList = false; }
+        out.push(line);
+      }
+    }
+    if (inList) out.push('</ul>');
+    return out.join('\n').replace(/\n\n/g,'<br><br>').replace(/(?<!>)\n(?!<)/g,'<br>');
+  }
+
+  function fcAppend(role, html, isErr) {
+    const container = document.getElementById('fcMessages');
+    const typing    = document.getElementById('fcTyping');
+
+    const wrap = document.createElement('div');
+    wrap.className = 'fcm ' + role;
+
+    const av = document.createElement('div');
+    av.className = 'fcm-av ' + role;
+    if (role === 'ai') {
+      av.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="#1a6ef5" viewBox="0 0 16 16"><path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894"/></svg>`;
+    } else {
+      av.textContent = USER_INITIAL;
+    }
+
+    const body   = document.createElement('div');
+    const bubble = document.createElement('div');
+    bubble.className = 'fcb ' + role + (isErr ? ' err' : '');
+    bubble.innerHTML = html;
+
+    const t = document.createElement('div');
+    t.className = 'fcm-time';
+    t.textContent = fcNow();
+
+    body.appendChild(bubble);
+    body.appendChild(t);
+    wrap.appendChild(av);
+    wrap.appendChild(body);
+    container.insertBefore(wrap, typing);
+    fcScrollBottom();
+  }
+
+  /* ── Send ── */
+  window.fcSend = async function () {
+    const inp  = document.getElementById('fcInput');
+    const text = inp.value.trim();
+    if (!text) return;
+
+    document.getElementById('fcChips').style.display = 'none';
+    inp.value = ''; inp.style.height = 'auto';
+    document.getElementById('fcSend').disabled = true;
+
+    fcAppend('user', fcMd(text));
+    fcHistory.push({ role: 'user', text });
+
+    localStorage.setItem(
+   "medpredict_chat",
+   JSON.stringify(fcHistory)
+);
+
+    document.getElementById('fcTyping').classList.add('show');
+    fcScrollBottom();
+
+    try {
+      const res  = await fetch('/chatbot/ask', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ message: text, history: fcHistory.slice(0, -1) })
+      });
+      const data = await res.json();
+      document.getElementById('fcTyping').classList.remove('show');
+
+      if (!res.ok || data.error) {
+        fcAppend('ai', data.error || 'Server error ' + res.status, true);
+        fcHistory.pop();
+      } else {
+        fcHistory.push({ role: 'model', text: data.reply });
+        localStorage.setItem(
+   "medpredict_chat",
+   JSON.stringify(fcHistory)
+);
+        fcAppend('ai', fcMd(data.reply));
+        /* show badge if window is closed */
+        if (!fcIsOpen) {
+          document.getElementById('floatBadge').style.display = 'flex';
+        }
+      }
+    } catch (err) {
+      document.getElementById('fcTyping').classList.remove('show');
+      fcAppend('ai', 'Could not reach server. Please try again.', true);
+      fcHistory.pop();
+    }
+
+    document.getElementById('fcSend').disabled = false;
+    document.getElementById('fcInput').focus();
+  };
+
+  window.fcQuick = function (text) {
+    document.getElementById('fcInput').value = text;
+    fcSend();
+  };
+
+  window.fcClearChat = function () {
+    if (!confirm('Clear conversation?')) return;
+    fcHistory = [];
+    localStorage.removeItem("medpredict_chat");
+    const msgs    = document.getElementById('fcMessages');
+    const welcome = document.getElementById('fcWelcome');
+    const typing  = document.getElementById('fcTyping');
+    Array.from(msgs.children).forEach(c => {
+      if (c !== welcome && c !== typing) msgs.removeChild(c);
+    });
+    document.getElementById('fcChips').style.display = 'flex';
+    fcAppend('ai', 'Cleared! How can I help you? 😊');
+  };
+
+  /* ── Load history into widget on open ── */
+  function fcLoadHistory() {
+    if (fcHistory.length === 0) return;
+    document.getElementById('fcChips').style.display = 'none';
+    fcHistory.forEach(msg => {
+      if (msg.role === 'user')  fcAppend('user', fcMd(msg.text));
+      if (msg.role === 'model') fcAppend('ai',   fcMd(msg.text));
+    });
+    fcScrollBottom();
+  }
+
+  /* Patch toggleFloatChat to load history on first open */
+  let fcHistoryLoaded = false;
+  const _origToggle = window.toggleFloatChat;
+  window.toggleFloatChat = function () {
+    _origToggle();
+    if (!fcHistoryLoaded && fcIsOpen) {
+      fcHistoryLoaded = true;
+      fcLoadHistory();
+    }
+  };
+
+})();
+</script>
+{% endif %}
+<!-- ══ END FLOATING CHATBOT ══ -->
+
+</body>
+</html>     

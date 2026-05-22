@@ -1,0 +1,108 @@
+{% extends 'base.html' %}{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+
+<div class="results-header">
+  <h1>Diabetes Results</h1>
+  <p>AI-powered prediction based on your health parameters</p>
+</div>
+
+<!-- Patient Info -->
+<div class="info-card">
+  <h6><i class="bi bi-person-circle"></i> Patient Information</h6>
+  <div class="info-grid">
+    <div class="info-item"><div class="lbl">Name</div><div class="val">{{ user_name }}</div></div>
+    <div class="info-item"><div class="lbl">Email</div><div class="val">{{ user_email }}</div></div>
+    <div class="info-item"><div class="lbl">Phone</div><div class="val">{{ user_phone }}</div></div>
+  </div>
+</div>
+
+<!-- Health Parameters -->
+<div class="info-card">
+  <h6><i class="bi bi-clipboard2-pulse"></i> Health Parameters Entered</h6>
+  <div class="info-grid">
+    {% for key, val in user_details.items() %}
+    <div class="info-item">
+      <div class="lbl">{{ key.replace('_',' ').title() }}</div>
+      <div class="val">{{ val }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Results Table -->
+<div class="results-table-wrap">
+  <h6><i class="bi bi-graph-up"></i> Model-wise Prediction Results</h6>
+  <table class="results-table">
+    <thead>
+      <tr><th>#</th><th>Algorithm</th><th>Probability</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      {% for row in results %}
+      <tr>
+        <td>{{ row.sr_no }}</td>
+        <td><strong>{{ row.model }}</strong></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="flex:1;background:#e2e8f0;border-radius:10px;height:8px;max-width:120px;">
+              <div style="width:{{ row.probability }};background:{% if row.result=='Positive' %}#ef4444{% else %}#22c55e{% endif %};height:100%;border-radius:10px;"></div>
+            </div>
+            <span style="font-weight:600;">{{ row.probability }}</span>
+          </div>
+        </td>
+        <td>
+          {% if row.result == 'Positive' %}
+            <span class="badge-positive">⚠️ Positive</span>
+          {% elif row.result == 'Negative' %}
+            <span class="badge-negative">✅ Negative</span>
+          {% else %}
+            <span style="color:#64748b;font-size:0.85rem;">{{ row.result }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="suggestions-panel">
+<h6>■ Recommendations</h6>
+<ul>
+{% for s in suggestions %}
+<li>{{ s }}</li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- Note -->
+<div class="alert alert-warning d-flex gap-2 align-items-start" style="border-radius:12px;">
+  <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+  <small><strong>Medical Disclaimer:</strong> This prediction is for informational purposes only. Please consult a qualified medical professional for diagnosis and treatment.</small>
+</div>
+
+
+{% if symptoms %}
+<div class="mt-4 p-3 rounded" style="background:#fff3cd;border:1px solid #ffc107">
+<h6>⚠️ Common Symptoms</h6>
+<ul>
+{% for s in symptoms %}
+<li>{{ s }}</li>
+{% endfor %}
+</ul>
+<small><em>These are common symptoms associated with this condition. This is not a diagnosis.</em></small>
+</div>
+{% endif %}
+
+<!-- Actions -->
+<div class="action-bar mb-5">
+  <button class="btn btn-primary" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+  <form method="POST" action="/download_report" style="display:inline;">
+    <input type="hidden" name="disease" value="Diabetes">
+    <input type="hidden" name="results" value='{{ results | tojson }}'>
+    <input type="hidden" name="user_details" value='{{ user_details | tojson }}'>
+    <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-pdf"></i> Download PDF</button>
+  </form>
+  <a href="/hospitals" class="btn btn-warning text-white"><i class="bi bi-hospital"></i> Find Hospitals</a>
+  <a href="/dashboard" class="btn btn-info text-white"><i class="bi bi-speedometer2"></i> Dashboard</a>
+  <a href="/predict" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> New Prediction</a>
+</div>
+{% endblock %}
