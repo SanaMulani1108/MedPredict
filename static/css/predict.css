@@ -1,0 +1,169 @@
+.predict-header {
+  background: linear-gradient(135deg, #0b3d6b, #1565c0);
+  border-radius: 20px; padding: 32px 36px; color: #fff; margin-bottom: 28px;
+}
+.predict-header h1 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.8rem; margin-bottom: 6px; }
+.predict-header p { opacity: 0.8; margin: 0; font-size: 0.95rem; }
+
+/* Disease Tab Pills */
+#diseaseTab { border: none; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+#diseaseTab .nav-link {
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 22px !important;
+  font-weight: 600; font-size: 0.9rem; color: #64748b !important;
+  background: #fff !important;
+  transition: all 0.2s !important;
+  display: flex; align-items: center; gap: 8px;
+}
+#diseaseTab .nav-link:hover { border-color: #1a6bbf !important; color: #0f4c81 !important; background: #f0f7ff !important; }
+#diseaseTab .nav-link.active { border-color: #0f4c81 !important; color: #fff !important; background: linear-gradient(135deg, #0f4c81, #1565c0) !important; box-shadow: 0 4px 14px rgba(15,76,129,0.25) !important; }
+
+/* Form Card */
+.form-card { background: #fff; border-radius: 20px; padding: 32px; border: 1px solid #e2e8f0; box-shadow: 0 2px 16px rgba(15,76,129,0.07); }
+.form-section-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: #0f4c81; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e8f0fc; display: flex; align-items: center; gap: 8px; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { font-weight: 600; font-size: 0.85rem; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.severity-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.low .severity-dot, label.low::before { background: #22c55e; }
+.moderate .severity-dot, label.moderate::before { background: #f59e0b; }
+.high .severity-dot, label.high::before { background: #ef4444; }
+label.low { display: flex !important; }
+label.low::before { content: '●'; color: #22c55e; font-size: 0.7rem; }
+label.moderate::before { content: '●'; color: #f59e0b; font-size: 0.7rem; }
+label.high::before { content: '●'; color: #ef4444; font-size: 0.7rem; }
+
+/* Algorithm Section */
+.algo-section { background: #f8fafc; border-radius: 14px; padding: 20px; border: 1px solid #e2e8f0; margin-top: 24px; }
+.algo-section h6 { font-family: 'Sora', sans-serif; font-weight: 700; color: #0f4c81; margin-bottom: 14px; }
+.algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.algo-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; }
+.algo-item:hover { border-color: #1a6bbf; background: #f0f7ff; }
+.algo-item input[type=checkbox] { width: 16px; height: 16px; accent-color: #0f4c81; cursor: pointer; }
+.algo-item span { font-size: 0.88rem; font-weight: 500; color: #374151; }
+
+/* Submit Button */
+.btn-predict { background: linear-gradient(135deg, #0f4c81, #1565c0); color: #fff; border: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 1rem; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+.btn-predict:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,76,129,0.3); color: #fff; }
+
+/* Normal range hint */
+.range-hint { font-size: 0.75rem; color: #64748b; font-weight: 400; margin-left: 4px; }
+
+/* ── Tom Select: searchable multi-select for algorithms ── */
+.ts-wrapper.multi .ts-control {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-height: 44px;
+  background: #fff;
+  box-shadow: none;
+  cursor: text;
+}
+.ts-wrapper.multi .ts-control:focus-within {
+  border-color: #1a6bbf;
+  box-shadow: 0 0 0 0.2rem rgba(15, 76, 129, 0.18);
+}
+.ts-wrapper .ts-dropdown {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(15, 76, 129, 0.10);
+  z-index: 9999;
+}
+.ts-wrapper .ts-dropdown .option {
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #374151;
+}
+.ts-wrapper .ts-dropdown .option:hover,
+.ts-wrapper .ts-dropdown .option.active {
+  background: #f0f7ff;
+  color: #0f4c81;
+}
+.ts-wrapper .ts-dropdown .option.selected {
+  background: #e8f0fc;
+  color: #0f4c81;
+  font-weight: 600;
+}
+.ts-wrapper.multi .ts-control .item {
+  background: #e8f0fc;
+  color: #0f4c81;
+  border: none;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.ts-wrapper.multi .ts-control .item .remove {
+  color: #0f4c81;
+  border-left: none;
+  padding-left: 4px;
+  opacity: 0.6;
+}
+.ts-wrapper.multi .ts-control .item .remove:hover { opacity: 1; }
+.ts-wrapper .ts-control input::placeholder { color: #94a3b8; font-size: 0.85rem; }
+.algo-select-label {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 400;
+  margin-bottom: 8px;
+  display: block;
+}
+.algo-select-label span {
+  background: #e8f0fc;
+  color: #0f4c81;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 2px 9px;
+  margin-left: 5px;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — predict.css
+═══════════════════════════════════════════ */
+
+@media (max-width: 992px) {
+  .predict-header { padding: 24px 28px; }
+  .predict-header h1 { font-size: 1.5rem; }
+  #diseaseTab { gap: 8px; }
+  #diseaseTab .nav-link { padding: 10px 16px !important; font-size: 0.85rem; }
+  .form-card { padding: 24px; }
+}
+
+@media (max-width: 768px) {
+  .predict-header { padding: 20px 22px; border-radius: 14px; }
+  .predict-header h1 { font-size: 1.3rem; }
+  .predict-header p { font-size: 0.85rem; }
+  #diseaseTab { gap: 6px; }
+  #diseaseTab .nav-link {
+    padding: 8px 14px !important;
+    font-size: 0.82rem;
+    border-radius: 10px !important;
+  }
+  .form-card { padding: 20px; border-radius: 14px; }
+  .form-section-title { font-size: 0.92rem; }
+  .form-group label { font-size: 0.82rem; }
+  .algo-section { padding: 16px; }
+  .btn-predict { padding: 12px 28px; font-size: 0.92rem; width: 100%; justify-content: center; }
+  .ts-wrapper.multi .ts-control { min-height: 40px; }
+}
+
+@media (max-width: 576px) {
+  .predict-header { padding: 16px 18px; }
+  .predict-header h1 { font-size: 1.1rem; }
+  #diseaseTab { flex-wrap: wrap; }
+  #diseaseTab .nav-item { flex: 1 1 calc(50% - 6px); }
+  #diseaseTab .nav-link { text-align: center; justify-content: center; padding: 8px 10px !important; font-size: 0.78rem; }
+  .form-card { padding: 16px; border-radius: 12px; }
+  .range-hint { display: block; margin-left: 0; margin-top: 2px; }
+  .algo-section { padding: 12px; }
+  .btn-predict { font-size: 0.88rem; padding: 11px 20px; }
+}
+
+@media (max-width: 480px) {
+  #diseaseTab .nav-item { flex: 1 1 100%; }
+  .predict-header h1 { font-size: 1rem; }
+  .form-group { margin-bottom: 14px; }
+}

@@ -1,0 +1,157 @@
+.container h1
+{
+text-align: center;
+font-weight: bold;
+color: #007bff;
+}
+
+.container h3
+{
+  color: #007bff;
+}
+
+/* Original */
+
+.container h1
+{
+text-align: center;
+font-weight: bold;
+color: #007bff;
+}
+
+.container h3
+{
+  color: #007bff;
+}
+
+
+/* -------------------------------Trail One---------------------------------------- */
+/* Main container styling */
+.custom-table {
+  width: 90%; /* Reduce width to prevent excessive stretching */
+  max-width: 900px; /* Limit maximum width */
+  /* margin: auto; Center align */
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table th {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: white !important;
+  text-align: left;
+  font-weight: bold;
+  padding: 8px; /* Reduce padding */
+  font-size: 1rem; /* Reduce font size */
+  text-transform: uppercase;
+  border: none;
+}
+
+.custom-table td {
+  padding: 8px; /* Reduce padding for compact appearance */
+  border: none;
+  text-align: left;
+  font-size: 0.95rem; /* Slightly smaller font */
+  color: #333;
+}
+
+.custom-table tbody tr:nth-child(odd) {
+  background-color: #f2f7ff;
+}
+
+.custom-table tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.custom-table tbody tr:hover {
+  background: rgba(0, 123, 255, 0.15);
+  transition: 0.3s ease-in-out;
+}
+
+.custom-table tbody tr {
+  border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+}
+
+/* Reduce spacing around tables */
+/* .results-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+} */
+
+/* Reduce spacing for headers */
+.results-section h1 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.results-section h3 {
+  font-size: 1.4rem;
+  padding-bottom: 6px;
+  margin-bottom: 15px;
+}
+
+/* Adjust User Details Table */
+.user-details table {
+  width: 90%;
+  max-width: 800px;
+  /* margin: auto; */
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the print button */
+.btn-primary {
+  width: 200px; /* Reduce width */
+  font-size: 1rem; /* Reduce font size */
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* Hide print button when printing */
+@media print {
+  #print-button {
+    display: none;
+  }
+}
+
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — result CSS
+═══════════════════════════════════════════ */
+
+@media (max-width: 992px) {
+  .custom-table { width: 100%; max-width: 100%; }
+  .results-section h1 { font-size: 1.6rem; }
+  .results-section h3 { font-size: 1.2rem; }
+}
+
+@media (max-width: 768px) {
+  .custom-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+  .custom-table th, .custom-table td { padding: 6px 8px; font-size: 0.88rem; }
+  .user-details table { width: 100%; max-width: 100%; display: block; overflow-x: auto; }
+  .results-section h1 { font-size: 1.4rem; }
+  .results-section h3 { font-size: 1.1rem; }
+  .btn-primary { width: 100%; font-size: 0.9rem; padding: 9px; }
+}
+
+@media (max-width: 576px) {
+  .custom-table th, .custom-table td { padding: 5px 7px; font-size: 0.82rem; }
+  .results-section h1 { font-size: 1.2rem; margin-bottom: 10px; }
+  .results-section h3 { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .results-section h1 { font-size: 1.05rem; }
+  .custom-table th { font-size: 0.78rem; }
+  .custom-table td { font-size: 0.78rem; }
+}
+
+@media print {
+  #print-button, .btn-primary { display: none !important; }
+  .custom-table { box-shadow: none; width: 100%; }
+}

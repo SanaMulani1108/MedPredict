@@ -1,0 +1,59 @@
+section {
+  border-radius: 12px;
+}
+
+h1, h4 {
+  font-family: 'Nunito', sans-serif;
+}
+
+p {
+  color: #555;
+}
+
+.btn-lg {
+  border-radius: 30px;
+}
+
+.bg-light {
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+}
+
+.shadow-sm {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.gallery-section img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-section img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+/* ═══════════════════════════════════════════
+   RESPONSIVE — home.css
+═══════════════════════════════════════════ */
+
+@media (max-width: 992px) {
+  .bg-light { padding: 2rem 1rem; }
+}
+
+@media (max-width: 768px) {
+  section { border-radius: 10px; }
+  h1 { font-size: 1.6rem; }
+  h4 { font-size: 1.1rem; }
+  p  { font-size: 0.9rem; }
+  .btn-lg { padding: 10px 24px; font-size: 0.95rem; border-radius: 24px; }
+  .gallery-section img { border-radius: 8px; }
+}
+
+@media (max-width: 576px) {
+  h1 { font-size: 1.3rem; }
+  h4 { font-size: 1rem; }
+  .btn-lg { width: 100%; font-size: 0.9rem; padding: 10px 18px; }
+  section { border-radius: 8px; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.1rem; }
+  .btn-lg { font-size: 0.85rem; border-radius: 20px; }
+}

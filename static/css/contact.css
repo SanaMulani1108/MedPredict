@@ -1,0 +1,74 @@
+.contact-section {
+  background-color: #e6f4ea; /* Light green background */
+  padding: 40px 20px;
+  border-radius: 12px;
+  max-width: 700px;
+  margin: auto;
+  box-shadow: 0px 4px 12px rgba(0, 128, 0, 0.2);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.contact-section h1 {
+  color: #1b5e20; /* Dark green */
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.contact-section p {
+  text-align: center;
+  color: #2e7d32;
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-item {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 6px solid #43a047; /* Green accent */
+  box-shadow: 0px 2px 8px rgba(0, 128, 0, 0.1);
+}
+
+.contact-title {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+  color: #1b5e20;
+}
+
+.contact-item p {
+  margin: 0;
+  font-size: 1rem;
+  color: #33691e;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — contact.css
+═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .contact-section { padding: 28px 18px; margin: 0 12px; border-radius: 10px; }
+  .contact-section h1 { font-size: 1.6rem; }
+  .contact-section p { font-size: 0.95rem; }
+  .contact-item { padding: 12px; }
+  .contact-title { font-size: 1.05rem; }
+}
+
+@media (max-width: 576px) {
+  .contact-section { padding: 22px 14px; margin: 0 8px; }
+  .contact-section h1 { font-size: 1.3rem; }
+  .contact-details { gap: 12px; }
+  .contact-item { border-left-width: 4px; padding: 10px 12px; }
+  .contact-title { font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+  .contact-section h1 { font-size: 1.1rem; }
+  .contact-section { padding: 18px 12px; }
+}
